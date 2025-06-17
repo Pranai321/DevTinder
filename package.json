@@ -4,7 +4,7 @@
   "description": "App to connect software developer",
   "main": "app.js",
   "scripts": {
-    "start":"nodemon src/app.js"
+    "start": "nodemon src/app.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0",
+    "mongoose": "^8.16.0",
     "nodemon": "^3.1.10"
   }
 }

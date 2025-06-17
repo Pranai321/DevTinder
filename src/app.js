@@ -1,28 +1,18 @@
-const {Auth} = require('./middleware/auth.js');
+const {Auth} = require('./middlewares/auth.js');
 const express = require("express");
 
+const connectDB = require('./config/database.js');
 
-const app = express();
+const app = express(); 
 
-// app.get("/getuserdata",(req,res)=>{
-//     try{
-//         //logic
-//         throw new Error("Object");
-//     }
-//     catch(err){
-//         res.send(err.message);
-//     }
-// })
-app.get('/getuserdata',(req,res)=>{
-
-    throw new Error("error object");
-});
-app.use("/",(err,req,res,next)=>{
-    if(err){
-        console.log(err.message);   
-        res.send("something went wrong")
-    }
-})
-app.listen(1777, ()=>{
+connectDB().then(()=>{
+    console.log("App is connected to DB");
+    app.listen(1777, ()=>{
     console.log("server is up and running on portal 1777");
 })
+}
+    
+).catch((err)=>{
+    console.log("Database cannot be connected to app")
+})
+
