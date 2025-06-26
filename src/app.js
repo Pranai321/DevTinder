@@ -15,7 +15,7 @@ app.post('/signup',async (req,res)=>{
 
     .then(()=>{ res.send("User signed-up") })
 
-    .catch((err)=>{ res.send("error saving user details in the DB") })
+    .catch((err)=>{ res.status(404).send(err.message) })
 })
 
 //gets all the details of a user based on the given field
@@ -70,14 +70,14 @@ app.delete('/user', async(req,res)=>{
 app.patch('/user', async(req,res)=>{
     const userId = req.body.userId;
     try{
-        const updatedUser = await User.findByIdAndUpdate(userId,req.body,{new:true}); //new= true returns the document after updated
+        const updatedUser = await User.findByIdAndUpdate(userId,req.body, {runValidators:true}, {new:true} ); //new= true returns the document after updated
 
         if(updatedUser === null){
             return res.status(404).send("Usernotfound");
         }
         res.send("User Updated");
     }catch(err){
-        res.send(err);
+        res.send(err.message);
     }
 })
 connectDB()
