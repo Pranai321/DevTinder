@@ -5,28 +5,60 @@ const User = require('./models/user.js');
 
 const app = express(); 
 
+app.use(express.json()); //express.json() gives the middleware function that converts JSON object to a js object
+
 app.post('/signup',async (req,res)=>{
-    const user = new User({
-        firstName:"pranai",
-        lastName:"Reddy",
-        emailId:"pranaisaireddy@gmail.com"
-    })
+
+    //creating a new instance of a userModel
+    const user = new User(req.body);
     await user.save()
-        .then(()=>{
-        res.send("User signed-up")
-    })
-        .catch((err)=>{
-            res.send("error saving user details in the DB")
-        })
+
+    .then(()=>{ res.send("User signed-up") })
+
+    .catch((err)=>{ res.send("error saving user details in the DB") })
 })
-connectDB().then(()=>{
-    console.log("App is connected to DB");
-    app.listen(1777, ()=>{
-    console.log("server is up and running on portal 1777");
+
+//gets all the details of a user based on the given field
+app.get('/user', async (req,res)=>{
+
+    try{
+        const mail = req.body.emailId;
+        const user = await User.find({emailId: mail});
+        if(user.length===0){
+            res.send("User not found");
+        }else{
+            res.send(user);
+        }
+        
+    }catch(err){
+        res.status(404).send("Something went wrong");
+        
+    }
+
 })
-}
+
+//gets all the documents in a the User Collection for the Feed
+app.get('/feed', async (req, res)=>{
+
+    try{
+        const users = await User.find({ });
+        if(users.length ===0){
+            res.send("No users found");
+        }else{
+            res.send(users);
+        }
+    }catch(err){
+        res.send("Something went wrong");
+    }
     
-).catch((err)=>{
+})
+
+connectDB()
+.then(()=>{
+    console.log("App is connected to DB");
+    app.listen(1777, ()=>{ console.log("server is up and running on portal 1777"); })
+})
+.catch((err)=>{
     console.log("Database cannot be connected to app")
 })
 
