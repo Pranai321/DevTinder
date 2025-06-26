@@ -53,6 +53,7 @@ app.get('/feed', async (req, res)=>{
     
 })
 
+//Delete a user(document) from User Collection
 app.delete('/user', async(req,res)=>{
     // const userId = req.body.userId;
     const mail = req.body.mail;
@@ -62,6 +63,21 @@ app.delete('/user', async(req,res)=>{
         res.send("User Deleted");
     }catch(err){
         res.send("Something went wrong");
+    }
+})
+
+//Update a a user(document)
+app.patch('/user', async(req,res)=>{
+    const userId = req.body.userId;
+    try{
+        const updatedUser = await User.findByIdAndUpdate(userId,req.body,{new:true}); //new= true returns the document after updated
+
+        if(updatedUser === null){
+            return res.status(404).send("Usernotfound");
+        }
+        res.send("User Updated");
+    }catch(err){
+        res.send(err);
     }
 })
 connectDB()
