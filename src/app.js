@@ -53,6 +53,17 @@ app.get('/feed', async (req, res)=>{
     
 })
 
+app.delete('/user', async(req,res)=>{
+    // const userId = req.body.userId;
+    const mail = req.body.mail;
+    try{
+        // await User.findByIdAndDelete(userId);
+        await User.findOneAndDelete({emailId:mail});
+        res.send("User Deleted");
+    }catch(err){
+        res.send("Something went wrong");
+    }
+})
 connectDB()
 .then(()=>{
     console.log("App is connected to DB");
