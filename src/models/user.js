@@ -35,7 +35,10 @@ const userSchema = new mongoose.Schema({
      },
      skils:{
       type:[String],
-      // min: 3
+      default:[]
+     },
+     photoUrl:{
+      type:String
      },
      About:{
       type:String,

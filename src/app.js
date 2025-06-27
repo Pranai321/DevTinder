@@ -9,13 +9,22 @@ app.use(express.json()); //express.json() gives the middleware function that con
 
 app.post('/signup',async (req,res)=>{
 
-    //creating a new instance of a userModel
-    const user = new User(req.body);
-    await user.save()
+    try{
+        // if(req.body?.skills.length > 10){
+        //     throw new Error("Skills should be less than 10");
+        // }
+
+        const user = new User(req.body);
+        await user.save()
 
     .then(()=>{ res.send("User signed-up") })
 
-    .catch((err)=>{ res.status(404).send(err.message) })
+    // .catch((err)=>{ res.status(404).send(err.message) })
+    }catch(err){
+        res.status(404).send(err.message)
+    }
+    //creating a new instance of a userModel
+    
 })
 
 //gets all the details of a user based on the given field
@@ -67,9 +76,17 @@ app.delete('/user', async(req,res)=>{
 })
 
 //Update a a user(document)
-app.patch('/user', async(req,res)=>{
-    const userId = req.body.userId;
+app.patch('/user/:userId', async(req,res)=>{
+    const userId = req?.params.userId;
+    const data = req.body;
     try{
+        const ALLOWED_UPDATES =["password", "age", "photoUrl", "skills", "gender", "about"];
+        const isUpdateAllowed = Object.keys(data).every((key)=>{
+            return ALLOWED_UPDATES.includes(key);
+        })
+        if(!isUpdateAllowed){
+            throw new Error("Update not allowed");
+        }
         const updatedUser = await User.findByIdAndUpdate(userId,req.body, {runValidators:true}, {new:true} ); //new= true returns the document after updated
 
         if(updatedUser === null){
