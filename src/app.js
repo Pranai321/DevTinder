@@ -2,6 +2,9 @@ const {Auth} = require('./middlewares/auth.js');
 const express = require("express");
 const connectDB = require('./config/database.js');
 const User = require('./models/user.js');
+const isValidated = require('./utils/validation.js');
+const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 const app = express(); 
 
@@ -10,20 +13,45 @@ app.use(express.json()); //express.json() gives the middleware function that con
 app.post('/signup',async (req,res)=>{
 
     try{
-        // if(req.body?.skills.length > 10){
-        //     throw new Error("Skills should be less than 10");
-        // }
-
-        const user = new User(req.body);
+        // encrypting the password using bcrypt package
+        const hashedPassword = await bcrypt.hash(req.body.password,10);
+        isValidated(req);
+        const user = new User({
+            firstName: req.body.firstName, 
+            lastName: req.body.lastName, 
+            password: hashedPassword, 
+            emailId: req.body.emailId
+        });
         await user.save()
+        res.send("User signed-up")
 
-    .then(()=>{ res.send("User signed-up") })
-
-    // .catch((err)=>{ res.status(404).send(err.message) })
     }catch(err){
         res.status(404).send(err.message)
     }
     //creating a new instance of a userModel
+    
+})
+app.post('/login', async (req,res)=>{
+    try{
+        const emailId = req.body.emailId;
+        const password = req.body.password;
+        if(!emailId || !validator.isEmail(emailId)){
+            throw new Error("Invalid credentials");
+        }
+        const user = await User.findOne({emailId, emailId});
+        if(!user){
+            throw new Error("Invalid credentials");
+        }
+        const truth = await bcrypt.compare(password,user.password);
+        if(!truth){
+            throw new Error("Invalid credentials");
+        }
+        else{
+            res.send("Login Success")
+        }
+    }catch(err){
+        res.status(400).send(err.message)
+    }
     
 })
 
@@ -63,7 +91,7 @@ app.get('/feed', async (req, res)=>{
 })
 
 //Delete a user(document) from User Collection
-app.delete('/user', async(req,res)=>{
+app.delete('/user', async (req,res)=>{
     // const userId = req.body.userId;
     const mail = req.body.mail;
     try{
