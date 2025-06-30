@@ -5,9 +5,15 @@ const User = require('./models/user.js');
 const isValidated = require('./utils/validation.js');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+
+
+
 
 const app = express(); 
 
+app.use(cookieParser()); //express.json() gives the middleware function parses incoming cookie.
 app.use(express.json()); //express.json() gives the middleware function that converts JSON object to a js object
 
 app.post('/signup',async (req,res)=>{
@@ -36,17 +42,19 @@ app.post('/login', async (req,res)=>{
         const emailId = req.body.emailId;
         const password = req.body.password;
         if(!emailId || !validator.isEmail(emailId)){
-            throw new Error("Invalid credentials");
+            throw new Error("Email Invalid");
         }
         const user = await User.findOne({emailId, emailId});
         if(!user){
-            throw new Error("Invalid credentials");
+            throw new Error("Email wrong");
         }
         const isPasswordCorrect = await bcrypt.compare(password,user.password);
         if(!isPasswordCorrect){
-            throw new Error("Invalid credentials");
+            throw new Error("Password wrong");
         }
         else{
+            const token = await jwt.sign({_id: user._id}, 'Pranai123@') ;
+            res.cookie("token", token);
             res.send("Login Success")
         }
     }catch(err){
@@ -55,6 +63,18 @@ app.post('/login', async (req,res)=>{
     
 })
 
+app.get('/profile', async (req,res)=>{
+    try{
+        const token = req.cookies.token;
+        const decodedMessage = jwt.verify(token, "Pranai123@");
+
+        const user = await User.findById(decodedMessage._id);
+        res.send(user);
+    }catch(err){
+        res.status(400).send("err " +err.message);
+    }
+    
+})
 //gets all the details of a user based on the given field
 app.get('/user', async (req,res)=>{
 
@@ -73,7 +93,6 @@ app.get('/user', async (req,res)=>{
     }
 
 })
-
 //gets all the documents in a the User Collection for the Feed
 app.get('/feed', async (req, res)=>{
 
