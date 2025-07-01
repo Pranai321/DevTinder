@@ -1,4 +1,4 @@
-const {userAuth} = require('./middlewares/auth.js');
+const {userAuth} = require('./middlewares/userAuth.js');
 const express = require("express");
 const connectDB = require('./config/database.js');
 const User = require('./models/user.js');
@@ -7,8 +7,6 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-
-
 
 
 const app = express(); 
@@ -48,12 +46,12 @@ app.post('/login', async (req,res)=>{
         if(!user){
             throw new Error("Email wrong");
         }
-        const isPasswordCorrect = await bcrypt.compare(password,user.password);
+        const isPasswordCorrect = await user.validatePassword(password);
         if(!isPasswordCorrect){
             throw new Error("Password wrong");
         }
         else{
-            const token = await jwt.sign({_id: user._id}, 'Pranai123@', {expiresIn:60}) ;
+            const token = await user.getJWT();
             res.cookie("token", token);
             res.send("Login Success")
         }
