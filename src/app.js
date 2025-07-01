@@ -1,4 +1,4 @@
-const {Auth} = require('./middlewares/auth.js');
+const {userAuth} = require('./middlewares/auth.js');
 const express = require("express");
 const connectDB = require('./config/database.js');
 const User = require('./models/user.js');
@@ -44,7 +44,7 @@ app.post('/login', async (req,res)=>{
         if(!emailId || !validator.isEmail(emailId)){
             throw new Error("Email Invalid");
         }
-        const user = await User.findOne({emailId, emailId});
+        const user = await User.findOne({emailId, emailId}); 
         if(!user){
             throw new Error("Email wrong");
         }
@@ -53,7 +53,7 @@ app.post('/login', async (req,res)=>{
             throw new Error("Password wrong");
         }
         else{
-            const token = await jwt.sign({_id: user._id}, 'Pranai123@') ;
+            const token = await jwt.sign({_id: user._id}, 'Pranai123@', {expiresIn:60}) ;
             res.cookie("token", token);
             res.send("Login Success")
         }
@@ -63,15 +63,22 @@ app.post('/login', async (req,res)=>{
     
 })
 
-app.get('/profile', async (req,res)=>{
+//gets all the details of the User using Id after Authentication using userAuth middleware
+app.get('/profile', userAuth, async (req,res)=>{
     try{
-        const token = req.cookies.token;
-        const decodedMessage = jwt.verify(token, "Pranai123@");
-
-        const user = await User.findById(decodedMessage._id);
-        res.send(user);
+        res.send(req.user);
     }catch(err){
         res.status(400).send("err " +err.message);
+    }
+    
+})
+
+//sending connection request after authenticating the useer using userAuth middleware
+app.post('/sendConnectionRequest', userAuth, (req,res)=>{
+    try{
+        res.send(req.user.firstName+" sent a connection request");
+    }catch(err){
+        res.status(400).send(err.message);
     }
     
 })
