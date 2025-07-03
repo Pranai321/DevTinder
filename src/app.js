@@ -1,31 +1,23 @@
-const {userAuth} = require('./middlewares/userAuth.js');
 const express = require("express");
 const connectDB = require('./config/database.js');
 const User = require('./models/user.js');
-const isValidated = require('./utils/validation.js');
-const validator = require('validator');
 const cookieParser = require('cookie-parser');
+
 const authRouter = require('./routes/auth.js');
 const profileRouter = require('./routes/profile.js');
+const requestRouter = require('./routes/request.js');
 
-const app = express(); 
+const app = express();
 
 app.use(cookieParser()); //express.json() gives the middleware function parses incoming cookie.
 app.use(express.json()); //express.json() gives the middleware function that converts JSON object to a js object
 
 
-app.use('/',authRouter);
-app.use('/',profileRouter);
+app.use('/', authRouter);
+app.use('/', profileRouter);
+app.use('/', requestRouter);
 
-//gets all the details of the User using Id after Authentication using userAuth middleware
-app.get('/profile', userAuth, async (req,res)=>{
-    try{
-        res.send(req.user);
-    }catch(err){
-        res.status(400).send("err " +err.message);
-    }
-    
-})
+
 //gets all the details of a user based on the given field
 app.get('/user', async (req,res)=>{
 
@@ -83,7 +75,7 @@ app.patch('/user/:userId', async(req,res)=>{
             return ALLOWED_UPDATES.includes(key);
         })
         if(!isUpdateAllowed){
-            throw new Error("Update not allowed");
+            throw new Error("Update not allowed")    ;
         }
         const updatedUser = await User.findByIdAndUpdate(userId,req.body, {runValidators:true}, {new:true} ); //new= true returns the document after updated
 

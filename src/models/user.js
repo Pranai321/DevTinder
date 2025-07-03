@@ -46,14 +46,14 @@ const userSchema = new mongoose.Schema({
             }
         }
      },
-     skils:{
+     skills:{
       type:[String],
       default:[]
      },
      photoUrl:{
       type:String
      },
-     About:{
+     about:{
       type:String,
       default:"Placeholder"
      }
@@ -63,10 +63,10 @@ userSchema.methods.getJWT = function(){
    const token = jwt.sign({_id :this._id}, "Pranai123@", {expiresIn:'1h'});
    return token;
 }
-userSchema.methods.validatePassword = function(password){
-   const hashedPassword = password;
-   const originalPassword = this.password;
-   const isPasswordCorrect = bcrypt.compare(hashedPassword , originalPassword);
+userSchema.methods.validatePassword = async function(password){
+   const originalPassword = password;
+   const hashedPassword = this.password;
+   const isPasswordCorrect = await bcrypt.compare(originalPassword , hashedPassword);
    return isPasswordCorrect;
 } 
 const userModel = mongoose.model("user",userSchema); 
