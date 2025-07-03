@@ -68,7 +68,7 @@ userSchema.methods.validatePassword = function(password){
    const originalPassword = this.password;
    const isPasswordCorrect = bcrypt.compare(hashedPassword , originalPassword);
    return isPasswordCorrect;
-}
-const userModel = mongoose.model("user",userSchema);
+} 
+const userModel = mongoose.model("user",userSchema); 
 
 module.exports = userModel;

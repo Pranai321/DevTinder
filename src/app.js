@@ -3,63 +3,19 @@ const express = require("express");
 const connectDB = require('./config/database.js');
 const User = require('./models/user.js');
 const isValidated = require('./utils/validation.js');
-const bcrypt = require('bcrypt');
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
-
+const authRouter = require('./routes/auth.js');
+const profileRouter = require('./routes/profile.js');
 
 const app = express(); 
 
 app.use(cookieParser()); //express.json() gives the middleware function parses incoming cookie.
 app.use(express.json()); //express.json() gives the middleware function that converts JSON object to a js object
 
-app.post('/signup',async (req,res)=>{
 
-    try{
-        // encrypting the password using bcrypt package
-        const hashedPassword = await bcrypt.hash(req.body.password,10);
-        isValidated(req);
-        const user = new User({
-            firstName: req.body.firstName, 
-            lastName: req.body.lastName, 
-            password: hashedPassword, 
-            emailId: req.body.emailId
-        });
-        await user.save()
-        res.send("User signed-up")
-
-    }catch(err){
-        res.status(404).send(err.message)
-    }
-    //creating a new instance of a userModel
-    
-})
-app.post('/login', async (req,res)=>{
-    try{
-        const emailId = req.body.emailId;
-        const password = req.body.password;
-        if(!emailId || !validator.isEmail(emailId)){
-            throw new Error("Email Invalid");
-        }
-        const user = await User.findOne({emailId, emailId}); 
-        if(!user){
-            throw new Error("Email wrong");
-        }
-        const isPasswordCorrect = await user.validatePassword(password);
-        if(!isPasswordCorrect){
-            throw new Error("Password wrong");
-        }
-        else{
-            const token = await user.getJWT();
-            res.cookie("token", token);
-            res.send("Login Success")
-        }
-    }catch(err){
-        res.status(400).send(err.message)
-    }
-    
-})
+app.use('/',authRouter);
+app.use('/',profileRouter);
 
 //gets all the details of the User using Id after Authentication using userAuth middleware
 app.get('/profile', userAuth, async (req,res)=>{
@@ -67,16 +23,6 @@ app.get('/profile', userAuth, async (req,res)=>{
         res.send(req.user);
     }catch(err){
         res.status(400).send("err " +err.message);
-    }
-    
-})
-
-//sending connection request after authenticating the useer using userAuth middleware
-app.post('/sendConnectionRequest', userAuth, (req,res)=>{
-    try{
-        res.send(req.user.firstName+" sent a connection request");
-    }catch(err){
-        res.status(400).send(err.message);
     }
     
 })
@@ -149,10 +95,11 @@ app.patch('/user/:userId', async(req,res)=>{
         res.send(err.message);
     }
 })
+
 connectDB()
 .then(()=>{
     console.log("App is connected to DB");
-    app.listen(1777, ()=>{ console.log("server is up and running on portal 1777"); })
+    app.listen(1777, ()=>{ console.log("server is up and running on portal 1777"); }) 
 })
 .catch((err)=>{
     console.log("Database cannot be connected to app")
