@@ -45,6 +45,7 @@ requestRouter.post('/request/send/:status/:userId',userAuth,async (req,res)=>{
     }    
 })
 
+//accepting or rejecting the friend request using Id of connectionrequests
 requestRouter.post('/request/review/:status/:requestId', userAuth, async (req,res)=>{
     const {status, requestId } = req.params;
     const loggedInUser = req.user;

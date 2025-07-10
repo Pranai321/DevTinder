@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const connectionRequestSchema = new mongoose.Schema({
     fromUserId:{
         type:mongoose.Schema.Types.ObjectId, 
-        required:true
+        required:true,
+        ref:"user"
     },
     toUserId:{
         type:mongoose.Schema.Types.ObjectId,
-        required:true
+        required:true,
+        ref:"user"
     },
     status:{
         type:String,
@@ -28,7 +30,7 @@ connectionRequestSchema.pre("save",async function(next){
     }catch(err){
         next(err);
     }
-    next()
+    next() 
 })
 
 const ConnectionRequest = new mongoose.model("ConnectionRequest", connectionRequestSchema); 
