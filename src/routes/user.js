@@ -3,6 +3,7 @@ const userRouter = express.Router();
 const {userAuth} = require('../middlewares/userAuth');
 const ConnectionRequest = require('../models/connectionRequest');
 const USER_SAFE_DATA = ["firstName", "lastName","skills","age","gender","photoUrl"]
+const User = require('../models/user');
 
 //friend requests of a loggedin user
 userRouter.get('/user/requests/received', userAuth, async(req,res)=>{
@@ -50,5 +51,33 @@ userRouter.get('/user/connections', userAuth, async (req,res)=>{
         res.status(400).send(err.message);
     }
     
+})
+
+//userfeed
+userRouter.get('/user/feed',userAuth, async(req, res)=>{
+    try{
+        const loggedInUser = req.user
+        const connections = await ConnectionRequest.find({
+            $or:[
+                {fromUserId:loggedInUser._id},
+                {toUserId:loggedInUser._id}
+                ]
+            }).select("fromUserId toUserId")
+        var hideUsers = new Set();
+        connections.forEach((conn)=>{
+            console.log(conn.fromUserId, conn.toUserId);
+            hideUsers.add(conn.fromUserId.toString());
+            hideUsers.add(conn.toUserId.toString());
+        })
+        const users = await User.find({
+            _id:{$nin:Array.from(hideUsers)}
+        }).select(USER_SAFE_DATA)
+
+        res.json({
+            data:users
+        })
+    }catch(err){
+        res.send(err.message)
+    }
 })
 module.exports = userRouter;
