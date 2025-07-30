@@ -12,7 +12,7 @@ const isValidated= (req)=>{
 
 // This function needs more validations
 const editValidator = (req)=>{
-    console.log(req.body);
+    // console.log(req.body); 
     const ALLOWED_UPDATES = ["firstName", "lastName", "age", "gender", "skills", "photoUrl", "about"];
     const isValid = Object.keys(req.body).every((key)=>{
         return ALLOWED_UPDATES.includes(key);

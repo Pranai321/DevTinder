@@ -14,7 +14,7 @@ AuthRouter.post('/signup',async (req,res)=>{
         const user = new User({
             firstName: req.body.firstName, 
             lastName: req.body.lastName, 
-            password: hashedPassword, 
+            password: hashedPassword,
             emailId: req.body.emailId
         });
         await user.save()
@@ -45,7 +45,7 @@ AuthRouter.post('/login', async (req,res)=>{
         else{
             const token = await user.getJWT();
             res.cookie("token", token);
-            res.send("Login Success")
+            res.send(user);
         }
     }catch(err){
         res.status(400).send(err.message)
