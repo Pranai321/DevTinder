@@ -12,7 +12,7 @@ requestRouter.post('/request/send/:status/:userId',userAuth,async (req,res)=>{
         const toUserId = req.params.userId
         const toUser = await User.findById(toUserId);
         
-        const ALLOWED_STATUS = ["interested", "ignored"]
+        const ALLOWED_STATUS = ["interested", "ignored"];
         if(!ALLOWED_STATUS.includes(status)){
             throw new Error("status-"+status+"  Not Allowed!");
         }

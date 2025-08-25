@@ -12,10 +12,9 @@ profileRouter.get('/profile', userAuth, async (req,res)=>{
         res.send(req.user);
     }catch(err){
         res.status(400).send("err " +err.message);
-    }
-    
+    }    
 })
-
+  
 //Edit profile 
 profileRouter.patch('/profile/edit', userAuth, async (req,res)=>{
     try{
