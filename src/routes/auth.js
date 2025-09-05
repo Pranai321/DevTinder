@@ -16,12 +16,12 @@ AuthRouter.post('/signup',async (req,res)=>{
             lastName: req.body.lastName, 
             password: hashedPassword,
             emailId: req.body.emailId
-        });
+        }); 
         await user.save()
         res.send("User signed-up")
 
     }catch(err){
-        res.status(404).send(err.message)
+        res.status(401).send(err.message)
     }
     //creating a new instance of a userModel
     
