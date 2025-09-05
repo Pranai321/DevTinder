@@ -2,7 +2,7 @@ const express = require('express');
 const userRouter = express.Router();
 const {userAuth} = require('../middlewares/userAuth');
 const ConnectionRequest = require('../models/connectionRequest');
-const USER_SAFE_DATA = ["firstName", "lastName","skills","age","gender","photoUrl"]
+const USER_SAFE_DATA = ["firstName", "lastName","skills","about","age","gender","photoUrl"];
 const User = require('../models/user');
 
 //friend requests of a loggedin user
@@ -57,8 +57,8 @@ userRouter.get('/user/connections', userAuth, async (req,res)=>{
 userRouter.get('/user/feed',userAuth, async(req, res)=>{
     try{
         const page = parseInt(req.query.page) || 1;
-        const skip = (page-1)*2;
-        const limit = 2;
+        const skip = (page-1)*5;
+        const limit = 5;
         const loggedInUser = req.user
         const connections = await ConnectionRequest.find({
             $or:[
